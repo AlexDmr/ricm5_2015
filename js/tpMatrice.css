@@ -1,0 +1,12 @@
+.multitouch {
+    border			: solid black 3px;
+	border-radius	: 1em;
+    position		: absolute;
+	top				: 0px;
+	left			: 0px;
+	transform-origin: top left;
+}
+
+body {
+	overflow		: hidden;
+}

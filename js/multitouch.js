@@ -15,140 +15,15 @@ var automataRotoZoom = {
 				 config.push( conf );
 				},
 	nothing	: function(conf, event, touch) {
-				 if(event === "press") {
-					 // console.log("nothing press with", touch.identifier);
-					 // Compute matrix
-					 var style = window.getComputedStyle( conf.node );
-					 conf.originalMatrix	= transfo.getMatrixFromString( style.transform );
-					 conf.originalMatrixInv	= conf.originalMatrix.inverse();
-					 conf.currentMatrix		= transfo.getMatrixFromString( style.transform );
-					 // console.log(style.transform, conf.originalMatrix);
-					 // Compute touch point
-					 conf.touchesId[touch.identifier] = {
-						  point			: transfo.getPoint(touch.pageX, touch.pageY).matrixTransform( conf.originalMatrixInv )
-						, currentPoint	: transfo.getPoint(touch.pageX, touch.pageY)
-						};
-					 configOfTouchId[ touch.identifier ] = conf;
-					 // Next state
-					 conf.state = "drag";
-					 conf.node.style.zIndex = zIndex++;
-				 	}
+				 // TO BE DONE
 				},
 	drag	: function(conf, event, touch) {
-				 switch(event) {
-					 case "release":
-						 // console.log("drag release of", touch.identifier);
-						 delete configOfTouchId[touch.identifier];
-						 delete conf.touchesId[touch.identifier];
-						 conf.state		= "nothing";
-						 break;
-					 case "move":
-						 // console.log("drag with", touch.identifier);
-						 conf.touchesId[touch.identifier].currentPoint.x = touch.pageX;
-						 conf.touchesId[touch.identifier].currentPoint.y = touch.pageY;
-						 transfo.dragNode( conf.node
-										 , conf.originalMatrix, conf.touchesId[touch.identifier].point
-										 , conf.currentMatrix
-										 , touch.pageX, touch.pageY
-										 );
-						 break;
-					 case "press":
-						 // console.log("drag press with", touch.identifier);
-						 // Update matrix
-						 conf.originalMatrix	= transfo.copyMatrix( conf.currentMatrix );
-						 conf.originalMatrixInv	= conf.originalMatrix.inverse();
-						 
-						 // Compute touch point
-						 conf.touches = Object.keys(conf.touchesId);
-						 conf.touches.push(touch.identifier);
-						 conf.touchesId[touch.identifier] = {
-							  point			: transfo.getPoint(touch.pageX, touch.pageY).matrixTransform( conf.originalMatrixInv )
-							, currentPoint	: transfo.getPoint(touch.pageX, touch.pageY)
-							};
-						 configOfTouchId[ touch.identifier ] = conf;
-						 conf.state = "rotozoom";
-						 break;
-					}
+				 // TO BE DONE
 				},
 	rotozoom: function(conf, event, touch) {
-				 switch(event) {
-					 case "release":
-						 delete configOfTouchId[touch.identifier];
-						 conf.originalMatrix	= transfo.copyMatrix( conf.currentMatrix );
-						 conf.originalMatrixInv	= conf.originalMatrix.inverse();
-						 conf.state = "drag";
-						 break;
-					 case "move":
-						 // console.log("rotozoom with", touch.identifier);
-						 conf.touchesId[touch.identifier].currentPoint.x = touch.pageX;
-						 conf.touchesId[touch.identifier].currentPoint.y = touch.pageY;
-						 var id1 = conf.touches[0]
-						   , id2 = conf.touches[1];
-						 transfo.rotoZoomNode( conf.node
-											 , conf.originalMatrix, conf.currentMatrix
-											 , conf.touchesId[id1].point, conf.touchesId[id1].currentPoint
-											 , conf.touchesId[id2].point, conf.touchesId[id2].currentPoint
-											 );
-						 break;
-					}
+				 // TO BE DONE
 				}
 };
-
-//______________________________________________________________________________________________________________________
-//______________________________________________________________________________________________________________________
-// Subscribe to touch events
-//______________________________________________________________________________________________________________________
-//______________________________________________________________________________________________________________________
-function startTouch(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	var node	= event.currentTarget
-	  , conf	= config[ node.dataset.confId ]
-	  , L		= event.changedTouches
-	  , i, touch
-	  ;
-	for(i=0; i< L.length; i++) {
-		 touch = L.item(i);
-		 conf.automata[conf.state].apply(conf, [conf, "press", touch]);
-		}
-}
-
-//______________________________________________________________________________________________________________________
-// Subscribe to touch events end or cancel
-function endTouch(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	var i, L = event.changedTouches,touch, conf;
-	for(i=0; i< L.length; i++) {
-		touch = L.item(i);
-		conf = configOfTouchId[ touch.identifier ];
-		if(conf) {
-			conf.automata[conf.state].apply(conf, [conf, "release", touch]);
-		}
-	}
-}
-
-document.addEventListener( "touchend"   , endTouch, false);
-document.addEventListener( "touchcancel", endTouch, false);
-
-//______________________________________________________________________________________________________________________
-// Subscribe to touch events end or cancel
-function moveTouch(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	var i, L = event.changedTouches,touch, conf;
-	for(i=0; i< L.length; i++) {
-		touch = L.item(i);
-		conf = configOfTouchId[ touch.identifier ];
-		if(conf) {
-			conf.automata[conf.state].apply(conf, [conf, "move", touch]);
-		}
-	}
-}
-
-document.addEventListener( "touchmove"   , moveTouch, false);
-
-
 
 //______________________________________________________________________________________________________________________
 //______________________________________________________________________________________________________________________
@@ -162,9 +37,8 @@ function multiTouch(node) {
 		automata: automataRotoZoom
 		};
 	node.style.zIndex		= zIndex++;
-	node.style.transform	= "matrix(0.5,0,0,0.5,0,0)";// + (-100*Math.random()) + "," + (-100*Math.random()) + ")";
+	node.style.transform	= "matrix(0.5,0,0,0.5,0,0)";
 	conf.automata[conf.state].apply(conf, [conf]);
-	node.addEventListener( "touchstart", startTouch, false );
 	node.classList.add("multitouch");
 }
 
